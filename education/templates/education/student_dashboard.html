@@ -1,0 +1,99 @@
+{% extends 'education/student/base_student.html' %}
+{% load static %}
+
+{% block student_content %}
+<div class="dashboard-header">
+    <h1>Welcome back, {{ user.first_name|default:user.username }}!</h1>
+    <p>Continue your learning journey</p>
+</div>
+
+<!-- Search Bar -->
+<div class="search-container">
+    <form action="{% url 'search_teachers' %}" method="get" class="search-form">
+        <input type="text" name="q" placeholder="Search for teachers, subjects, or topics..." value="{{ request.GET.q }}">
+        <button type="submit"><i class="fas fa-search"></i></button>
+    </form>
+</div>
+
+<!-- Recent Videos Section -->
+<section class="video-section">
+    <div class="section-header">
+        <h2>Recent Videos</h2>
+        <a href="#" class="view-all">View All</a>
+    </div>
+    
+    <div class="video-grid">
+        {% for video in recent_videos %}
+        <div class="video-card">
+            <a href="{% url 'video_detail' video.id %}" class="video-thumbnail">
+                {% if video.thumbnail %}
+                    <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}">
+                {% else %}
+                    <div class="thumbnail-placeholder">
+                        <i class="fas fa-play"></i>
+                    </div>
+                {% endif %}
+                <span class="duration">{{ video.duration|time:"H:i:s"|default:'00:00' }}</span>
+            </a>
+            <div class="video-info">
+                <h3><a href="{% url 'video_detail' video.id %}">{{ video.title|truncatechars:50 }}</a></h3>
+                <a href="{% url 'teacher_profile' video.teacher.id %}" class="teacher-name">{{ video.teacher.get_full_name|default:video.teacher.username }}</a>
+                <div class="video-stats">
+                    <span><i class="far fa-eye"></i> {{ video.view_count }} views</span>
+                    <span><i class="far fa-calendar-alt"></i> {{ video.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Recommended For You -->
+<section class="video-section">
+    <div class="section-header">
+        <h2>Recommended For You</h2>
+        <a href="#" class="view-all">View All</a>
+    </div>
+    
+    <div class="video-grid">
+        {% for video in recommended_videos %}
+        <div class="video-card">
+            <a href="{% url 'video_detail' video.id %}" class="video-thumbnail">
+                {% if video.thumbnail %}
+                    <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}">
+                {% else %}
+                    <div class="thumbnail-placeholder">
+                        <i class="fas fa-play"></i>
+                    </div>
+                {% endif %}
+                <span class="duration">{{ video.duration|time:"H:i:s"|default:'00:00' }}</span>
+            </a>
+            <div class="video-info">
+                <h3><a href="{% url 'video_detail' video.id %}">{{ video.title|truncatechars:50 }}</a></h3>
+                <a href="{% url 'teacher_profile' video.teacher.id %}" class="teacher-name">{{ video.teacher.get_full_name|default:video.teacher.username }}</a>
+                <div class="video-stats">
+                    <span><i class="far fa-eye"></i> {{ video.view_count }} views</span>
+                    <span><i class="far fa-calendar-alt"></i> {{ video.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Popular Subjects -->
+<section class="subjects-section">
+    <h2>Browse by Subject</h2>
+    <div class="subjects-grid">
+        {% for subject in subjects|slice:":6" %}
+        <a href="{% url 'search_teachers' %}?subject={{ subject.id }}" class="subject-card">
+            <div class="subject-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <h3>{{ subject.name }}</h3>
+            <p>{{ subject.videos.count }} videos</p>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

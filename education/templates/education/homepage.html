@@ -1,0 +1,239 @@
+{% extends 'education/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-4">Empower Your Learning Journey with <span class="text-warning">EduTech</span></h1>
+                <p class="lead mb-4">Access high-quality courses from expert instructors and take your skills to the next level. Learn at your own pace, anytime, anywhere.</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'signup' %}" class="btn btn-light btn-lg px-4">Get Started</a>
+                    <a href="#courses" class="btn btn-outline-light btn-lg px-4">Browse Courses</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://img.freepik.com/free-vector/online-education-concept-illustration_114360-5506.jpg" alt="Online Learning" class="img-fluid rounded-3 shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Why Choose EduTech?</h2>
+            <p class="text-muted">Experience the future of online education</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-chalkboard-teacher fa-2x text-primary"></i>
+                        </div>
+                        <h4 class="h5">Expert Instructors</h4>
+                        <p class="text-muted">Learn from industry professionals with years of teaching and practical experience.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-laptop-code fa-2x text-primary"></i>
+                        </div>
+                        <h4 class="h5">Interactive Learning</h4>
+                        <p class="text-muted">Engage with interactive content, quizzes, and hands-on projects to reinforce learning.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-certificate fa-2x text-primary"></i>
+                        </div>
+                        <h4 class="h5">Certification</h4>
+                        <p class="text-muted">Earn verifiable certificates upon course completion to showcase your new skills.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Courses Section -->
+<section class="py-5 bg-light" id="courses">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold">Popular Courses</h2>
+                <p class="text-muted mb-0">Start learning from top-rated courses</p>
+            </div>
+            <a href="#" class="btn btn-outline-primary">View All Courses</a>
+        </div>
+        
+        <div class="row g-4">
+            {% for subject in featured_subjects %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="{{ subject.thumbnail.url|default:'https://via.placeholder.com/300x200' }}" class="card-img-top" alt="{{ subject.name }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary">{{ subject.get_difficulty_display }}</span>
+                            <small class="text-muted">{{ subject.video_count }} videos</small>
+                        </div>
+                        <h5 class="card-title">{{ subject.name }}</h5>
+                        <p class="card-text text-muted">{{ subject.description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ subject.created_by.profile.image.url|default:'https://via.placeholder.com/30' }}" 
+                                     class="rounded-circle me-2" width="30" height="30" alt="Instructor">
+                                <small>{{ subject.created_by.get_full_name|default:subject.created_by.username }}</small>
+                            </div>
+                            {% if subject.is_free %}
+                                <span class="badge bg-success">Free</span>
+                            {% else %}
+                                <span class="fw-bold">${{ subject.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{% url 'subject_detail' subject.slug %}" class="btn btn-outline-primary w-100">View Course</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="bg-light p-5 rounded-3">
+                    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                    <h4>No courses available yet</h4>
+                    <p class="text-muted">Check back soon for new courses!</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center py-5">
+        <h2 class="display-5 fw-bold mb-4">Ready to start learning?</h2>
+        <p class="lead mb-4">Join thousands of students already learning with EduTech</p>
+        <a href="{% url 'signup' %}" class="btn btn-light btn-lg px-5">Join Now - It's Free</a>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">What Our Students Say</h2>
+            <p class="text-muted">Hear from our community of learners</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://randomuser.me/api/portraits/women/32.jpg" class="rounded-circle me-3" width="50" height="50" alt="Student">
+                            <div>
+                                <h6 class="mb-0">Sarah Johnson</h6>
+                                <small class="text-muted">Web Development Student</small>
+                            </div>
+                        </div>
+                        <p class="card-text">"The courses on EduTech helped me transition my career into tech. The instructors are knowledgeable and the community is very supportive."</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://randomuser.me/api/portraits/men/45.jpg" class="rounded-circle me-3" width="50" height="50" alt="Student">
+                            <div>
+                                <h6 class="mb-0">Michael Chen</h6>
+                                <small class="text-muted">Data Science Student</small>
+                            </div>
+                        </div>
+                        <p class="card-text">"The hands-on projects were exactly what I needed to build my portfolio. I landed a job within 3 months of completing the program!"</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" class="rounded-circle me-3" width="50" height="50" alt="Student">
+                            <div>
+                                <h6 class="mb-0">Emily Rodriguez</h6>
+                                <small class="text-muted">UI/UX Design Student</small>
+                            </div>
+                        </div>
+                        <p class="card-text">"The quality of instruction is outstanding. I've taken many online courses, but EduTech's approach to project-based learning is exceptional."</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    <div class="container">
+        <h2>Ready to start learning?</h2>
+        <p>Join thousands of students already learning with us.</p>
+        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Create Free Account</a>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-about">
+                <h3>EduTech</h3>
+                <p>Making quality education accessible to everyone, everywhere.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Courses</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact Us</h4>
+                <p>Email: info@edutech.com</p>
+                <p>Phone: (123) 456-7890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 EduTech. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}

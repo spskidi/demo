@@ -1,0 +1,213 @@
+{% extends 'education/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Profile Information
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                Update your account's profile information and email address.
+            </p>
+        </div>
+        
+        <div class="px-4 py-5 sm:p-6">
+            <!-- Profile Update Form -->
+            <form method="post" action="{% url 'profile' %}" class="space-y-6">
+                {% csrf_token %}
+                <input type="hidden" name="update_profile">
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="id_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        {{ user_form.first_name }}
+                    </div>
+                    
+                    <div>
+                        <label for="id_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        {{ user_form.last_name }}
+                    </div>
+                    
+                    <div>
+                        <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+                        {{ user_form.email }}
+                        {% if user_form.email.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ user_form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save Profile
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Change Password Form -->
+            <div class="mt-10 border-t border-gray-200 pt-10">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Update Password
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Ensure your account is using a long, random password to stay secure.
+                </p>
+                
+                <form method="post" action="{% url 'profile' %}" class="mt-6 space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="change_password">
+                    
+                    <div>
+                        <label for="id_old_password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                        <input type="password" name="old_password" autocomplete="current-password" required id="id_old_password" 
+                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        {% if password_form.old_password.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ password_form.old_password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_new_password1" class="block text-sm font-medium text-gray-700">New Password</label>
+                        <input type="password" name="new_password1" autocomplete="new-password" required id="id_new_password1" 
+                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        {% if password_form.new_password1.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ password_form.new_password1.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_new_password2" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                        <input type="password" name="new_password2" autocomplete="new-password" required id="id_new_password2" 
+                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        {% if password_form.new_password2.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ password_form.new_password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Account Deletion (Danger Zone) -->
+            <div class="mt-10 border-t border-red-200 pt-10">
+                <h3 class="text-lg leading-6 font-medium text-red-700">
+                    Delete Account
+                </h3>
+                <p class="mt-1 text-sm text-red-600">
+                    Once your account is deleted, all of its resources and data will be permanently deleted. 
+                    Before deleting your account, please download any data or information that you wish to retain.
+                </p>
+                
+                <div class="mt-6">
+                    <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            onclick="document.getElementById('delete-account-modal').classList.remove('hidden')">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div id="delete-account-modal" class="hidden fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('delete-account-modal').classList.add('hidden')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Delete Account
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">
+                                Are you sure you want to delete your account? All of your data will be permanently removed.
+                                This action cannot be undone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <form method="post" action="{% url 'delete_account' %}" class="inline-flex">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Delete Account
+                    </button>
+                </form>
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        onclick="document.getElementById('delete-account-modal').classList.add('hidden')">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show/hide password functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add show/hide password toggles
+        const passwordFields = document.querySelectorAll('input[type="password"]');
+        passwordFields.forEach(field => {
+            const container = field.parentNode;
+            const toggle = document.createElement('span');
+            toggle.className = 'absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5';
+            
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'text-gray-500 hover:text-gray-700 focus:outline-none';
+            
+            const showIcon = document.createElement('svg');
+            showIcon.className = 'h-5 w-5';
+            showIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            showIcon.setAttribute('fill', 'none');
+            showIcon.setAttribute('viewBox', '0 0 24 24');
+            showIcon.setAttribute('stroke', 'currentColor');
+            showIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+            
+            const hideIcon = document.createElement('svg');
+            hideIcon.className = 'h-5 w-5 hidden';
+            hideIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            hideIcon.setAttribute('fill', 'none');
+            hideIcon.setAttribute('viewBox', '0 0 24 24');
+            hideIcon.setAttribute('stroke', 'currentColor');
+            hideIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />';
+            
+            button.appendChild(showIcon);
+            button.appendChild(hideIcon);
+            toggle.appendChild(button);
+            
+            // Add relative positioning to the container
+            container.classList.add('relative');
+            container.appendChild(toggle);
+            
+            // Toggle password visibility
+            button.addEventListener('click', function() {
+                const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
+                field.setAttribute('type', type);
+                showIcon.classList.toggle('hidden');
+                hideIcon.classList.toggle('hidden');
+            });
+        });
+    });
+</script>
+{% endblock %}

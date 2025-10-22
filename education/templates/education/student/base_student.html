@@ -1,0 +1,60 @@
+{% extends 'education/base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="student-dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="profile-card">
+            <div class="profile-pic">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.get_full_name }}">
+                {% else %}
+                    <div class="default-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <h3>{{ user.get_full_name|default:user.username }}</h3>
+            <p class="role">Student</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'student_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'search_teachers' %}" class="nav-item {% if request.resolver_match.url_name == 'search_teachers' %}active{% endif %}">
+                <i class="fas fa-chalkboard-teacher"></i> Find Teachers
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-book"></i> My Courses
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-bookmark"></i> Saved Videos
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-history"></i> Watch History
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block student_content %}
+        {% endblock %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/student.js' %}"></script>
+{% endblock %}

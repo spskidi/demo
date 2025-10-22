@@ -1,0 +1,290 @@
+{% extends 'education/student/base_student.html' %}
+{% load static %}
+
+{% block student_content %}
+<div class="teacher-profile-container">
+    <!-- Teacher Header -->
+    <div class="teacher-header">
+        <div class="teacher-avatar">
+            {% if teacher_profile.profile_picture %}
+                <img src="{{ teacher_profile.profile_picture.url }}" alt="{{ teacher.get_full_name }}">
+            {% else %}
+                <div class="default-avatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="teacher-info">
+            <h1>{{ teacher.get_full_name|default:teacher.username }}</h1>
+            <p class="teacher-title">
+                {% if teacher_profile.qualification %}
+                    {{ teacher_profile.qualification }}
+                {% endif %}
+                {% if teacher_profile.experience %}
+                    • {{ teacher_profile.experience }} years experience
+                {% endif %}
+            </p>
+            
+            {% if teacher_profile.subjects.exists %}
+            <div class="teacher-subjects">
+                {% for subject in teacher_profile.subjects.all %}
+                <span class="subject-tag">{{ subject.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if teacher_profile.hourly_rate %}
+            <div class="teacher-rate">
+                <span class="rate">${{ teacher_profile.hourly_rate }}/hr</span>
+                <span class="label">Hourly Rate</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="teacher-actions">
+            <button class="btn btn-primary">
+                <i class="fas fa-envelope"></i> Contact
+            </button>
+            <button class="btn btn-outline">
+                <i class="far fa-bookmark"></i> Save
+            </button>
+        </div>
+    </div>
+    
+    <!-- Teacher Bio -->
+    {% if teacher_profile.bio %}
+    <div class="teacher-bio">
+        <h2>About Me</h2>
+        <p>{{ teacher_profile.bio|linebreaksbr }}</p>
+    </div>
+    {% endif %}
+    
+    <!-- Teacher's Videos -->
+    <div class="teacher-videos">
+        <div class="section-header">
+            <h2>My Videos</h2>
+        </div>
+        
+        {% if videos %}
+        <div class="video-grid">
+            {% for video in videos %}
+            <div class="video-card">
+                <a href="{% url 'video_detail' video.id %}" class="video-thumbnail">
+                    {% if video.thumbnail %}
+                        <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}">
+                    {% else %}
+                        <div class="thumbnail-placeholder">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    {% endif %}
+                    <span class="duration">{{ video.duration|time:"H:i:s"|default:'00:00' }}</span>
+                </a>
+                <div class="video-info">
+                    <h3><a href="{% url 'video_detail' video.id %}">{{ video.title|truncatechars:50 }}</a></h3>
+                    <div class="video-stats">
+                        <span><i class="far fa-eye"></i> {{ video.view_count }} views</span>
+                        <span><i class="far fa-calendar-alt"></i> {{ video.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-content">
+            <i class="fas fa-video-slash"></i>
+            <p>No videos available yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.teacher-profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Teacher Header */
+.teacher-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.teacher-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #f0f4ff;
+    flex-shrink: 0;
+}
+
+.teacher-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.default-avatar {
+    width: 100%;
+    height: 100%;
+    background: #f0f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a6cf7;
+    font-size: 3.5rem;
+}
+
+.teacher-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.teacher-info h1 {
+    margin: 0 0 0.5rem;
+    color: #2d3748;
+}
+
+.teacher-title {
+    color: #718096;
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+}
+
+.teacher-subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.subject-tag {
+    background: #f0f4ff;
+    color: #4a6cf7;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.teacher-rate {
+    margin-top: 1rem;
+}
+
+.teacher-rate .rate {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    display: block;
+}
+
+.teacher-rate .label {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.teacher-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Teacher Bio */
+.teacher-bio {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.teacher-bio h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #2d3748;
+    font-size: 1.5rem;
+}
+
+.teacher-bio p {
+    line-height: 1.6;
+    color: #4a5568;
+    margin: 0;
+}
+
+/* No Content */
+.no-content {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.no-content i {
+    font-size: 3rem;
+    color: #cbd5e0;
+    margin-bottom: 1rem;
+}
+
+.no-content p {
+    color: #718096;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .teacher-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .teacher-avatar {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .teacher-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .teacher-subjects {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .video-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .teacher-profile-container {
+        padding: 1rem 0.5rem;
+    }
+    
+    .teacher-header,
+    .teacher-bio {
+        padding: 1.5rem;
+    }
+    
+    .teacher-actions {
+        flex-direction: column;
+    }
+    
+    .teacher-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

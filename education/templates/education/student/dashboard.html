@@ -1,0 +1,244 @@
+{% extends 'education/student/base_student.html' %}
+{% load static %}
+
+{% block student_content %}
+<div class="dashboard-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <div class="welcome-text">
+            <h1>Welcome back, {{ user.get_full_name|default:user.username }}!</h1>
+            <p>Keep up the good work. Practice makes perfect!</p>
+        </div>
+        <div class="date-display">
+            <span id="current-date"></span>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e3f2fd;">
+                <i class="fas fa-play-circle" style="color: #1976d2;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.videos_watched }}</h3>
+                <p>Videos Watched</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e8f5e9;">
+                <i class="fas fa-check-circle" style="color: #388e3c;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.notes_taken }}</h3>
+                <p>Notes Taken</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #fff3e0;">
+                <i class="fas fa-fire" style="color: #f57c00;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.streak_days }}</h3>
+                <p>Day Streak</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f3e5f5;">
+                <i class="fas fa-trophy" style="color: #8e24aa;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.achievements }}</h3>
+                <p>Achievements</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2>Your Learning Progress</h2>
+            <div class="time-filter">
+                <button class="time-btn active">Week</button>
+                <button class="time-btn">Month</button>
+                <button class="time-btn">Year</button>
+            </div>
+        </div>
+        <div class="progress-chart">
+            <canvas id="progressChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2>Recent Activity</h2>
+            <a href="#" class="view-all">View All</a>
+        </div>
+        <div class="activity-feed">
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                <div class="activity-icon">
+                    {% if activity.type == 'video' %}
+                    <i class="fas fa-play-circle"></i>
+                    {% elif activity.type == 'note' %}
+                    <i class="fas fa-file-alt"></i>
+                    {% elif activity.type == 'quiz' %}
+                    <i class="fas fa-question-circle"></i>
+                    {% else %}
+                    <i class="fas fa-bell"></i>
+                    {% endif %}
+                </div>
+                <div class="activity-details">
+                    <p class="activity-text">{{ activity.text }}</p>
+                    <span class="activity-time">{{ activity.time }}</span>
+                </div>
+                {% if activity.badge %}
+                <span class="activity-badge">{{ activity.badge }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recommended Content -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2>Continue Learning</h2>
+            <a href="{% url 'search_teachers' %}" class="view-all">Browse All</a>
+        </div>
+        <div class="content-grid">
+            {% for video in recommended_videos %}
+            <div class="content-card">
+                <a href="{% url 'video_detail' video.id %}" class="content-thumbnail">
+                    {% if video.thumbnail %}
+                        <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}">
+                    {% else %}
+                        <div class="thumbnail-placeholder">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    {% endif %}
+                    <span class="duration">{{ video.duration|time:"i:s"|default:'00:00' }}</span>
+                </a>
+                <div class="content-info">
+                    <h3><a href="{% url 'video_detail' video.id %}">{{ video.title|truncatechars:50 }}</a></h3>
+                    <a href="{% url 'teacher_profile' video.teacher.id %}" class="teacher-name">
+                        {{ video.teacher.get_full_name|default:video.teacher.username }}
+                    </a>
+                    <div class="content-meta">
+                        <span><i class="far fa-eye"></i> {{ video.view_count }}</span>
+                        <span><i class="far fa-calendar-alt"></i> {{ video.created_at|date:"M d" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current date
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', options);
+
+    // Time filter buttons
+    const timeButtons = document.querySelectorAll('.time-btn');
+    timeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            timeButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            // Here you would update the chart based on the selected time period
+            updateChart(this.textContent.trim().toLowerCase());
+        });
+    });
+
+    // Initialize chart
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    let progressChart;
+
+    function updateChart(timeRange) {
+        // This is sample data - in a real app, you'd fetch this from your backend
+        let labels, data;
+        
+        switch(timeRange) {
+            case 'week':
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                data = [2, 4, 3, 5, 4, 7, 8];
+                break;
+            case 'month':
+                labels = Array.from({length: 30}, (_, i) => i + 1);
+                data = Array.from({length: 30}, () => Math.floor(Math.random() * 10));
+                break;
+            case 'year':
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                data = [45, 38, 42, 50, 55, 60, 65, 70, 62, 75, 80, 85];
+                break;
+        }
+
+        if (progressChart) {
+            progressChart.destroy();
+        }
+
+        progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Minutes Watched',
+                    data: data,
+                    borderColor: '#4a6cf7',
+                    backgroundColor: 'rgba(74, 108, 247, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#2d3748',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 14 },
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.parsed.y} minutes`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            stepSize: 2
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize with week view
+    updateChart('week');
+});
+</script>
+{% endblock %}
