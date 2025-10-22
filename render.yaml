@@ -10,9 +10,16 @@ services:
       - key: DJANGO_SETTINGS_MODULE
         value: edtech_project.settings
       - key: SECRET_KEY
-        generateValue: true
-      - key: WEB_CONCURRENCY
-        value: 4
+        value: your-secret-key-here  # Generate a secure key and replace this
+      - key: DEBUG
+        value: "False"
       - key: DISABLE_COLLECTSTATIC
-        value: 1
+        value: "0"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    build:
+      args:
+        PYTHON_VERSION: 3.9.0
     plan: free
+    healthCheckPath: /  # Root path for health checks
+    autoDeploy: yes
